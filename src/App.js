@@ -22,16 +22,16 @@ const App = () => {
     }, 5000)
   }
 
- const createUser = async (newUser) => {
+  const createUser = async (newUser) => {
     try {
-      const user = await loginService.login(newUser)  
+      const user = await loginService.login(newUser)
       createMessage(`${user.username} just logged in`, 'success')
       setUser(user)
 
       blogService.setToken(user.token)
       window.localStorage.setItem(
         'loggedBlogListAppUser', JSON.stringify(user)
-      ) 
+      )
     } catch (error) {
       createMessage('wrong username or password', 'error')
     }
@@ -39,11 +39,18 @@ const App = () => {
 
   const createBlog = async (blog) => {
     try {
-      const returnedBlog = await blogService.create(blog)
+      let returnedBlog = await blogService.create(blog)
+
+      returnedBlog.user = {
+        username: user.username,
+        name:user.name,
+        id: returnedBlog.user
+      }
+
       const newBlogList = blogs.concat(returnedBlog)
       blogFormRef.current.toggleVisible()
       createMessage(`"${blog.title}" by ${blog.author} is added to list`, 'success')
-      setBlogs(newBlogList.sort((a, b) => b.likes - a.likes))
+      setBlogs(newBlogList)
 
     } catch (error) {
       createMessage('Title and url required' , 'error')
@@ -61,14 +68,26 @@ const App = () => {
       url: blogFromDB.url
     }
 
-    const updatedBlogs = blogs.reduce((blogsArr, blog) => {
+    const updatedBlogs = blogs.map(blog => {
       if(blog.id === id) {
         blog.likes = updatedBlog.likes
       }
-      return blogsArr.concat(blog)
-     }, []) 
-     setBlogs(updatedBlogs.sort((a, b) => b.likes - a.likes))
-     return await blogService.update(id, updatedBlog)
+      return blog
+    })
+    setBlogs(updatedBlogs.sort((a, b) => b.likes - a.likes))
+    return await blogService.update(id, updatedBlog)
+  }
+
+  const deleteBlog = async (id) => {
+    try{
+      await blogService.deleteBlog(id)
+
+      const newBlogList = blogs.filter(blog => blog.id !== id)
+      setBlogs(newBlogList)
+      createMessage('Blog deleted' , 'success')
+    } catch (error) {
+      createMessage('already deleted', 'error')
+    }
   }
 
   const handleLogout = () => {
@@ -90,11 +109,11 @@ const App = () => {
       .getAll()
       .then((blogs) => setBlogs(blogs.sort((a, b) => b.likes - a.likes)))
   }, [])
-  
+
   const blogForm = () => (
-    <Togglable firstButtonLabel = 'new blog' secondButtonLabel = "cancel" ref = {blogFormRef}>
+    <Togglable buttonUp = {false} firstButtonLabel = 'new blog' secondButtonLabel = "cancel" ref = {blogFormRef}>
       <BlogForm createBlog = {createBlog} />
-     </Togglable>
+    </Togglable>
   )
 
   if (user === null) {
@@ -112,9 +131,9 @@ const App = () => {
       <Notification message = {message} />
       <LoggedUser name = {user.name} onClick = {handleLogout}/>
       <div>
-      {blogForm()}
+        {blogForm()}
       </div>
-      <BlogsList blogs={blogs} username = {user.username} updateBlog = {updateBlog} />
+      <BlogsList deleteBlog = {deleteBlog} blogs={blogs} username = {user.username} updateBlog = {updateBlog} />
     </div>
   )
 }

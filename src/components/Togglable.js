@@ -1,4 +1,5 @@
 import React, { useState, useImperativeHandle } from 'react'
+import PropTypes from 'prop-types'
 
 const Togglable = React.forwardRef((props, ref) => {
   const [visible, setVisible] = useState(false)
@@ -7,24 +8,48 @@ const Togglable = React.forwardRef((props, ref) => {
 
   useImperativeHandle(ref, () => {
     return {
-      toggleVisible
+      toggleVisible,
     }
   })
 
+  const buttonStyle = {
+    margin: 5,
+    padding: 4
+  }
+
+  const buttonPosition = () => {
+    if (props.buttonUp) {
+      return (
+        <div>
+          <button style = {buttonStyle} onClick={toggleVisible}>{props.secondButtonLabel}</button>
+          {props.children}
+        </div>
+      )
+    } else {
+      return (
+        <div>
+          {props.children}
+          <button style = {buttonStyle} onClick={toggleVisible}>{props.secondButtonLabel}</button>
+        </div>
+      )
+    }
+  }
+
   if (visible) {
-    return (
-      <div>
-        <button onClick={toggleVisible}>{props.secondButtonLabel}</button>
-        {props.children}
-      </div>
-    )
+    return <>{buttonPosition()}</>
   } else {
     return (
       <div>
-        <button onClick={toggleVisible}>{props.firstButtonLabel}</button>
+        <button style = {buttonStyle} onClick={toggleVisible}>{props.firstButtonLabel}</button>
       </div>
     )
   }
 })
 
+Togglable.propTypes = {
+  firstButtonLabel: PropTypes.string.isRequired,
+  secondButtonLabel: PropTypes.string.isRequired
+}
+
+Togglable.displayName = 'Togglable'
 export default Togglable
