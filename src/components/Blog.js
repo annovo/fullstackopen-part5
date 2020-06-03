@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Togglable from './Togglable'
 
 const Blog = ({ blog, updateBlog, removeBlog }) => {
@@ -14,11 +14,8 @@ const Blog = ({ blog, updateBlog, removeBlog }) => {
 
   const removeStyle = { display: removeBlog ? '' : 'none' }
 
-  const [likes, setLikes] = useState(blog.likes)
-
   const addLike = async () => {
-    const returnedBlog =  await updateBlog(blog.id)
-    setLikes(returnedBlog.likes)
+    await updateBlog(blog.id)
   }
 
   const deleteBlog =  () => {
@@ -26,16 +23,16 @@ const Blog = ({ blog, updateBlog, removeBlog }) => {
       removeBlog(blog.id)
     }
   }
-
+ 
   const blogSpec = () => (
     <div>
       <p>url: {blog.url}</p>
-      <p>
-        likes: {likes}
-        <button type = 'button' onClick={addLike}>like</button>
+      <p class = 'like-container'>
+        likes: {blog.likes}
+        <button type = 'button' class = 'like-button' onClick={addLike}>like</button>
       </p>
-      <p>user: {blog.user.username}</p>
-      <button style = {removeStyle} onClick = {deleteBlog}>remove</button>
+      { blog.user && <p>user: {blog.user.username}</p> } 
+      <button class = 'delete-button' style = {removeStyle} onClick = {deleteBlog}>remove</button>
     </div>
   )
 

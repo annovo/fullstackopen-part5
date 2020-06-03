@@ -36,11 +36,11 @@ const Login = ({ createUser }) => {
           <input
             type="password"
             value={password}
-            name="passwoed"
+            name="password"
             onChange={passwordChange}
           />
         </div>
-        <button type="submit">login</button>
+        <button id = 'login-button' type="submit">login</button>
       </form>
     </div>
   )

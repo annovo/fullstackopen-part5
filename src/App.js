@@ -67,15 +67,14 @@ const App = () => {
       title: blogFromDB.title,
       url: blogFromDB.url
     }
-
+    const returnedBlog = await blogService.update(id, updatedBlog)
     const updatedBlogs = blogs.map(blog => {
       if(blog.id === id) {
-        blog.likes = updatedBlog.likes
+        blog.likes = returnedBlog.likes
       }
       return blog
     })
     setBlogs(updatedBlogs.sort((a, b) => b.likes - a.likes))
-    return await blogService.update(id, updatedBlog)
   }
 
   const deleteBlog = async (id) => {
@@ -129,7 +128,7 @@ const App = () => {
     <div>
       <h2>Blogs</h2>
       <Notification message = {message} />
-      <LoggedUser name = {user.name} onClick = {handleLogout}/>
+      <LoggedUser name = {user.username} onClick = {handleLogout}/>
       <div>
         {blogForm()}
       </div>
